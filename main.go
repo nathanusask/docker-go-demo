@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"path"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -18,10 +17,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	pwd, _ := os.Getwd()
-	resp, err := cli.ImageBuild(ctx, nil, types.ImageBuildOptions{
-		Tags:       []string{"docker-go-demo", "v0.0"},
-		Dockerfile: path.Join(pwd, "Dockerfile"),
+	buildContext, _ := os.Open("Dockerfile")
+	resp, err := cli.ImageBuild(ctx, buildContext, types.ImageBuildOptions{
+		Tags: []string{"docker-go-demo", "v0.0"},
 	})
 	if err != nil {
 		log.Fatal(err)
