@@ -24,7 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 	resp, err := cli.ImageBuild(ctx, buildContext, types.ImageBuildOptions{
-		Tags: []string{"docker-go-demo", "v0.0"},
+		Tags: []string{"docker-go-demo:v0.1"},
 	})
 	if err != nil {
 		log.Fatal(err)
