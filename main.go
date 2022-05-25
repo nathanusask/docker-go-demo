@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/docker/docker/pkg/archive"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 )
@@ -17,7 +19,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	buildContext, _ := os.Open("Dockerfile")
+	buildContext, err := archive.TarWithOptions(".", &archive.TarOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
 	resp, err := cli.ImageBuild(ctx, buildContext, types.ImageBuildOptions{
 		Tags: []string{"docker-go-demo", "v0.0"},
 	})
