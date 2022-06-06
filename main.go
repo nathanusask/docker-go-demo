@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
+	"os"
 
 	"github.com/docker/docker/pkg/archive"
 
@@ -32,16 +32,16 @@ func main() {
 	}
 	defer resp.Body.Close()
 
-	bytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	idResp := &types.IDResponse{}
-	if err := json.Unmarshal(bytes, &idResp); err != nil {
-		log.Fatal(err)
-	}
-	log.Println("image ID:", idResp.ID)
-	//io.Copy(os.Stdout, resp.Body)
+	//bytes, err := ioutil.ReadAll(resp.Body)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//idResp := &types.IDResponse{}
+	//if err := json.Unmarshal(bytes, &idResp); err != nil {
+	//	log.Fatal(err)
+	//}
+	//log.Println("image ID:", idResp.ID)
+	io.Copy(os.Stdout, resp.Body)
 
 	//reader, err := cli.ImagePull(ctx, "docker.io/library/alpine", types.ImagePullOptions{})
 	//if err != nil {
