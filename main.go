@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"io"
+	"encoding/json"
+	"io/ioutil"
 	"log"
-	"os"
 
 	"github.com/docker/docker/pkg/archive"
 
@@ -24,12 +24,24 @@ func main() {
 		log.Fatal(err)
 	}
 	resp, err := cli.ImageBuild(ctx, buildContext, types.ImageBuildOptions{
-		Tags: []string{"docker-go-demo:v0.1"},
+		Tags:           []string{"docker-go-demo:v0.1"},
+		SuppressOutput: true, // so that we can obtain only ID or nothing
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	io.Copy(os.Stdout, resp.Body)
+	defer resp.Body.Close()
+
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	idResp := &types.IDResponse{}
+	if err := json.Unmarshal(bytes, &idResp); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("image ID:", idResp.ID)
+	//io.Copy(os.Stdout, resp.Body)
 
 	//reader, err := cli.ImagePull(ctx, "docker.io/library/alpine", types.ImagePullOptions{})
 	//if err != nil {
