@@ -215,7 +215,7 @@ func main() {
 		log.Fatal("failed at TarWithOptions", err)
 	}
 	resp, err := cli.ImageBuild(ctx, buildContext, types.ImageBuildOptions{
-		Tags:           []string{macd.FactorName},
+		Tags:           []string{dirname},
 		Dockerfile:     dockerfileName,
 		SuppressOutput: true, // so that we can obtain only ID or nothing
 	})
