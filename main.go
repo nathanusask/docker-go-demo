@@ -163,7 +163,7 @@ func main() {
 		},
 	}
 	dirname := strings.ToLower(macd.FactorName)
-	if err := os.Mkdir(macd.FactorName, os.ModePerm); err != nil {
+	if err := os.Mkdir(dirname, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 	fileMain, err := os.Create(path.Join(dirname, "main.py"))
