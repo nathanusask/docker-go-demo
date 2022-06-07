@@ -111,7 +111,7 @@ def MACD(data, interval='1D', fast=12, slow=26, dea=9):
 const DockerfileTemplate = `FROM python:3.10
 
 WORKDIR /app
-COPY . .
+COPY ./%s/* .
 
 RUN pip install -r requirements.txt
 `
@@ -162,10 +162,11 @@ func main() {
 			},
 		},
 	}
+	dirname := strings.ToLower(macd.FactorName)
 	if err := os.Mkdir(macd.FactorName, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
-	fileMain, err := os.Create(path.Join(macd.FactorName, "main.py"))
+	fileMain, err := os.Create(path.Join(dirname, "main.py"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -174,7 +175,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fileFactor, err := os.Create(path.Join(macd.FactorName, macd.FactorName+".py"))
+	fileFactor, err := os.Create(path.Join(dirname, macd.FactorName+".py"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -183,7 +184,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fileRequirements, err := os.Create(path.Join(macd.FactorName, "requirements.txt"))
+	fileRequirements, err := os.Create(path.Join(dirname, "requirements.txt"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -192,17 +193,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dockerfileTempl, err := template.New("dockerfile").Parse(DockerfileTemplate)
-	if err != nil {
-		log.Fatal(err)
-	}
+	dockerfileContent := fmt.Sprintf(DockerfileTemplate, dirname)
 	dockerfileName := macd.FactorName + "-Dockerfile"
 	fileDockerFile, err := os.Create(dockerfileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer fileDockerFile.Close()
-	if err = dockerfileTempl.Execute(fileDockerFile, macd); err != nil {
+	if _, err = fileDockerFile.WriteString(dockerfileContent); err != nil {
 		log.Fatal(err)
 	}
 
@@ -212,7 +210,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	buildContext, err := archive.TarWithOptions(macd.FactorName, &archive.TarOptions{})
+	buildContext, err := archive.TarWithOptions(dirname, &archive.TarOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
