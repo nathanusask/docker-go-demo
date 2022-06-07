@@ -62,6 +62,7 @@ func main() {
 	if err := os.Mkdir(dirname, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
+	defer os.RemoveAll(dirname)
 	fileMain, err := os.Create(path.Join(dirname, "main.py"))
 	if err != nil {
 		log.Fatal(err)
