@@ -99,7 +99,7 @@ def MACD(data, interval='1D', fast=12, slow=26, dea=9):
 FROM python:3.10
 
 WORKDIR /app
-COPY ./{{ .FactorName }}/* .
+COPY . .
 
 RUN pip install -r requirements.txt
 ```
