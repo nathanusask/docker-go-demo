@@ -111,7 +111,7 @@ def MACD(data, interval='1D', fast=12, slow=26, dea=9):
 const DockerfileTemplate = `FROM python:3.10
 
 WORKDIR /app
-COPY ./%s/* .
+COPY . .
 
 RUN pip install -r requirements.txt
 `
@@ -193,14 +193,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	dockerfileContent := fmt.Sprintf(DockerfileTemplate, dirname)
-	dockerfileName := macd.FactorName + "-Dockerfile"
-	fileDockerFile, err := os.Create(dockerfileName)
+	fileDockerFile, err := os.Create(path.Join(dirname, "Dockerfile"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer fileDockerFile.Close()
-	if _, err = fileDockerFile.WriteString(dockerfileContent); err != nil {
+	if _, err = fileDockerFile.WriteString(DockerfileTemplate); err != nil {
 		log.Fatal(err)
 	}
 
@@ -216,7 +214,6 @@ func main() {
 	}
 	resp, err := cli.ImageBuild(ctx, buildContext, types.ImageBuildOptions{
 		Tags:           []string{dirname},
-		Dockerfile:     dockerfileName,
 		SuppressOutput: true, // so that we can obtain only ID or nothing
 	})
 	if err != nil {
