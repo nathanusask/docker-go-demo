@@ -212,7 +212,7 @@ func main() {
 
 	buildContext, err := archive.TarWithOptions(dirname, &archive.TarOptions{})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed at TarWithOptions", err)
 	}
 	resp, err := cli.ImageBuild(ctx, buildContext, types.ImageBuildOptions{
 		Tags:           []string{macd.FactorName},
@@ -220,7 +220,7 @@ func main() {
 		SuppressOutput: true, // so that we can obtain only ID or nothing
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed at image build", err)
 	}
 	defer resp.Body.Close()
 
