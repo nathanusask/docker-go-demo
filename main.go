@@ -187,6 +187,7 @@ func RunFactor(ctx context.Context, cli *client.Client, factorNameLowercase stri
 		Cmd:   append([]string{"python", "/app/main.py"}, paramArgs...),
 	}, &container.HostConfig{
 		AutoRemove: true,
+		ExtraHosts: []string{"host.docker.internal:host-gateway"},
 	}, nil, nil, factorNameLowercase)
 	if err != nil {
 		return err
