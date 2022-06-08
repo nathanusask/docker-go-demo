@@ -84,6 +84,40 @@ def MACD(data, interval='1D', fast=12, slow=26, dea=9):
     return df[['datetime','Diff','DEA','MACD']]
 `
 
+const POC = `import pandas as pd
+import datetime
+import re
+
+def separate_str_num(s):
+    pattern = '(\d+|[A-Za-z]+)'
+    return re.findall(pattern, s)
+
+def max_amount_price(group):
+    POC = group.loc[group['amount'] == group['amount'].max(), 'price'].mean()
+    return pd.Series([POC], ('POC',))
+
+def POC(data, interval='1D'):
+    df_all = pd.DataFrame(data)
+    df_all['datetime'] = pd.to_datetime(df_all['ts'], unit='ms')
+    df = df_all.groupby(pd.Grouper(key='datetime', freq=interval)).apply(max_amount_price).reset_index()
+    duration, interval_type = separate_str_num(interval)
+    duration = int(duration)
+
+    if interval_type == 's':
+        df['datetime'] += datetime.timedelta(seconds=duration)
+    elif interval_type == 'min':
+        df['datetime'] += datetime.timedelta(minutes=duration)
+    elif interval_type == 'h':
+        df['datetime'] += datetime.timedelta(hours=duration)
+    elif interval_type == 'W':
+        df['datetime'] = df['datetime'].dt.date + datetime.timedelta(days=7)
+    elif interval_type == 'SM':
+        df['datetime'] = df['datetime'].dt.date + datetime.timedelta(days=15)
+    elif interval_type == 'D' or interval_type == 'M':
+        df['datetime'] = df['datetime'].dt.date
+    return df[['datetime', 'POC']]
+`
+
 const DockerfileTemplate = `FROM python:3.10
 
 WORKDIR /app
