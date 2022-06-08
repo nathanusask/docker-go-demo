@@ -3,7 +3,6 @@ package main
 const PythonMainTemplate = `import argparse
 import pandas as pd
 from pymongo import MongoClient
-mongo_client = MongoClient(host=args.host, port=args.port)
 
 parser = argparse.ArgumentParser(description="{{ .Description }}")
 {{ range .ParamTypes }}parser.add_argument("--{{ .Name }}", type={{ .Type }}){{"\n"}}{{ end }}
@@ -16,6 +15,8 @@ parser.add_argument("--start", type=int, default=0)
 parser.add_argument("--end", type=int, default=-1)
 
 args = parser.parse_args()
+
+mongo_client = MongoClient(host=args.host, port=args.port)
 
 # get data
 def get_data(database, collection, start, end):
