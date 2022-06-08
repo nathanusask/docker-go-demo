@@ -77,9 +77,6 @@ func main() {
 
 	paramArgs := []string{
 		"--task_id", "fake_task_id",
-		"--host", "47.96.164.104",
-		"--port", "27017",
-		"--database", "quant",
 		"--collection", "swap.eth",
 		"--interval", "1min",
 	}
