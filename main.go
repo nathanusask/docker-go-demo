@@ -175,5 +175,42 @@ func BuildFactor(ctx context.Context, cli *client.Client, factor Factor, templat
 	}
 
 	id := strings.Split(strings.Trim(r.Stream, "\n"), ":")[1]
-	log.Println("image ID:", id)
+	return id, nil
+}
+
+func RunFactor(ctx context.Context, cli *client.Client, factorNameLowercase string, paramArgs []string) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Hour)
+	defer cancel()
+
+	body, err := cli.ContainerCreate(ctx, &container.Config{
+		Image: factorNameLowercase,
+		Cmd:   append([]string{"python", "/app/main.py"}, paramArgs...),
+	}, &container.HostConfig{
+		AutoRemove: true,
+	}, nil, nil, factorNameLowercase)
+	if err != nil {
+		return err
+	}
+
+	containerID := body.ID
+	log.Println("container ID:", containerID)
+
+	if err := cli.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
+		return err
+	}
+
+	bodyChan, errCh := cli.ContainerWait(ctx, body.ID, container.WaitConditionRemoved)
+	select {
+	case b := <-bodyChan:
+		if b.Error != nil {
+			log.Println(b.StatusCode, b.Error)
+			return errors.New(b.Error.Message)
+		}
+		log.Println(b.StatusCode)
+	case err := <-errCh:
+		return err
+	case <-ctx.Done():
+		return errors.New("context timeout")
+	}
+	return nil
 }
