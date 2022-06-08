@@ -56,6 +56,7 @@ def separate_str_num(s):
 
 def MACD(data, interval='1D', fast=12, slow=26, dea=9):
     df_all = pd.DataFrame(data)
+    df_all['datetime'] = pd.to_datetime(df_all['ts'], unit='ms')
     df = df_all
         .groupby(pd.Grouper(key='datetime', freq=interval))
         .agg(close=pd.NamedAgg(column='price', aggfunc='last'))
@@ -88,7 +89,7 @@ const DockerfileTemplate = `FROM python:3.10
 WORKDIR /app
 COPY . .
 
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt --no-cache-dir
 `
 
 const Requirements = `pymongo
