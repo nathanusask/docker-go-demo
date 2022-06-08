@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(description="{{ .Description }}")
 {{ range .ParamTypes }}parser.add_argument("--{{ .Name }}", type={{ .Type }}){{"\n"}}{{ end }}
 parser.add_argument("--task_id")
 parser.add_argument("--host")
-parser.add_argument("--port")
+parser.add_argument("--port", type=int)
 parser.add_argument("--database")
 parser.add_argument("--collection")
 parser.add_argument("--start", type=int, default=0)
