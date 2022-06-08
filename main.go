@@ -68,12 +68,12 @@ func main() {
 	//	log.Fatal(err)
 	//}
 
-	//imageID, err := BuildFactor(ctx, cli, poc, POC)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//log.Println("build successful, image ID:", imageID)
+	imageID, err := BuildFactor(ctx, cli, poc, POC)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("build successful, image ID:", imageID)
 
 	paramArgs := []string{
 		"--task_id", "fake_task_id",
@@ -201,6 +201,8 @@ func RunFactor(ctx context.Context, cli *client.Client, factorNameLowercase stri
 
 	bodyChan, errCh := cli.ContainerWait(ctx, body.ID, container.WaitConditionRemoved)
 	select {
+	case err := <-errCh:
+		return err
 	case b := <-bodyChan:
 		if b.Error != nil {
 			log.Println(b.StatusCode, b.Error)
@@ -208,8 +210,6 @@ func RunFactor(ctx context.Context, cli *client.Client, factorNameLowercase stri
 		}
 		log.Println(b.StatusCode)
 		return nil
-	case err := <-errCh:
-		return err
 	case <-ctx.Done():
 		return errors.New("context timeout")
 	}

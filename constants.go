@@ -41,7 +41,7 @@ result = {{ .FactorName }}(data, {{ assignParamArg .ParamTypes | join ", "}})
 
 # handle result
 output_collection = ".".join([args.task_id, "{{ .FactorName }}"])
-handle_result(result, database, output_collection)
+handle_result(result, args.database, output_collection)
 
 mongo_client.close()
 `
