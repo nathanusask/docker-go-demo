@@ -137,6 +137,7 @@ func RunFactor(ctx context.Context, cli *client.Client, factorNameLowercase stri
 		ExtraHosts: []string{"host.docker.internal:host-gateway"},
 		Mounts: []mount.Mount{
 			{
+				Type:   mount.TypeBind,
 				Source: src,
 				Target: dst,
 			},
