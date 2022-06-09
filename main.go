@@ -130,7 +130,7 @@ func RunFactor(ctx context.Context, cli *client.Client, factorNameLowercase stri
 	dst := "/app/main.py"
 
 	body, err := cli.ContainerCreate(ctx, &container.Config{
-		Image: factorNameLowercase, // TODO: change it to a fixed image name
+		Image: "poc", // TODO: change it to a fixed image name
 		Cmd:   append([]string{"python", dst}, paramArgs...),
 	}, &container.HostConfig{
 		AutoRemove: true,
