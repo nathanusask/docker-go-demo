@@ -7,6 +7,7 @@ type ParamType struct {
 
 type Factor struct {
 	FactorName  string
+	FactorCode  string
 	Description string
 	ParamTypes  []ParamType
 }

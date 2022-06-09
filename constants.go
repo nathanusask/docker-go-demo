@@ -1,7 +1,7 @@
 package main
 
 const PythonMainTemplate = `import argparse
-import pandas as pd
+{{ .FactorCode }}
 from pymongo import MongoClient
 
 parser = argparse.ArgumentParser(description="{{ .Description }}")
@@ -22,10 +22,11 @@ mongo_client = MongoClient(host=args.host, port=args.port)
 def get_data(database, collection, start, end):
     db = mongo_client[database]
     coll = db[collection]
-    filter = {}
+    pipeline = [{'$project': {'_id': 0}}]
     if start < end:
-        filter = {"ts": {"$gt": start, "$lt": end}}
-    return coll.find(filter)
+        filter = {"$match": {"ts": {"$gt": start, "$lt": end}}}
+        pipeline.append(filter)
+    return coll.aggregate(pipeline)
 
 # handle result
 def handle_result(result, database, collection):
@@ -35,8 +36,6 @@ def handle_result(result, database, collection):
     coll.insert_many(result.to_dict("records"))
 
 data = get_data(args.database, args.collection, args.start, args.end)
-
-from {{ .FactorName }} import {{ .FactorName }}
 
 result = {{ .FactorName }}(data, {{ assignParamArg .ParamTypes | join ", "}})
 

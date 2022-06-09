@@ -11,33 +11,32 @@ type Factor struct {
 
 ```python
 import argparse
-# pip install pandas
-import pandas as pd
+{{ .FactorCode }}
+from pymongo import MongoClient
 
 parser = argparse.ArgumentParser(description="{{ .Description }}")
 {{ range .ParamTypes }}parser.add_argument("--{{ .Name }}", type={{ .Type }}){{"\n"}}{{ end }}
 parser.add_argument("--task_id")
-parser.add_argument("--host")
-parser.add_argument("--port")
-parser.add_argument("--database")
+parser.add_argument("--host", default="host.docker.internal")
+parser.add_argument("--port", type=int, default=27017)
+parser.add_argument("--database", default="quant")
 parser.add_argument("--collection")
 parser.add_argument("--start", type=int, default=0)
 parser.add_argument("--end", type=int, default=-1)
 
 args = parser.parse_args()
 
-# pip install pymongo
-import pymongo as mongo
-mongo_client = mongo.MongoClient(host=args.host, port=args.port)
+mongo_client = MongoClient(host=args.host, port=args.port)
 
 # get data
 def get_data(database, collection, start, end):
     db = mongo_client[database]
     coll = db[collection]
-    filter = {}
+    pipeline = [{'$project': {'_id': 0}}]
     if start < end:
-        filter = {"ts": {"$gt": start, "$lt": end}}
-    return coll.find(filter)
+        filter = {"$match": {"ts": {"$gt": start, "$lt": end}}}
+        pipeline.append(filter)
+    return coll.aggregate(pipeline)
 
 # handle result
 def handle_result(result, database, collection):
@@ -48,13 +47,13 @@ def handle_result(result, database, collection):
 
 data = get_data(args.database, args.collection, args.start, args.end)
 
-from {{ .FactorName }} import {{ .FactorName }}
-
 result = {{ .FactorName }}(data, {{ assignParamArg .ParamTypes | join ", "}})
 
 # handle result
 output_collection = ".".join([args.task_id, "{{ .FactorName }}"])
-handle_result(result, database, output_collection)
+handle_result(result, args.database, output_collection)
+
+mongo_client.close()
 ```
 
 ```python
