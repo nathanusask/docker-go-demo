@@ -30,7 +30,7 @@ func (s server) RunFactor(ctx context.Context, baseImage string, code string, fa
 		return err
 	}
 	pythonFilepath := path.Join(factorNameLowercase, pythonMainFilename)
-	f, err := os.OpenFile(pythonFilepath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	f, err := os.OpenFile(pythonFilepath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		log.Println("[Error] failed to create file with error", err.Error())
 		return err
