@@ -3,6 +3,7 @@ package containerize
 import (
 	"context"
 	"errors"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -70,6 +71,15 @@ func (s server) RunFactor(ctx context.Context, baseImage string, code string, fa
 
 	if err = s.cli.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
 		log.Println("[Error] failed to start container with error", err.Error())
+		return err
+	}
+	output, err := s.cli.ContainerLogs(ctx, containerID, types.ContainerLogsOptions{})
+	if err != nil {
+		log.Println("[Error] failed to get logs for container", containerID, "with error", err.Error())
+		return err
+	}
+	if _, err := io.Copy(os.Stdout, output); err != nil {
+		log.Println("[Error] failed to copy container output to stdout with error", err.Error())
 		return err
 	}
 

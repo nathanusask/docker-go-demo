@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -151,6 +152,16 @@ func RunFactor(ctx context.Context, cli *client.Client, factorNameLowercase stri
 	log.Println("container ID:", containerID)
 
 	if err := cli.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
+		return err
+	}
+
+	output, err := cli.ContainerLogs(ctx, containerID, types.ContainerLogsOptions{})
+	if err != nil {
+		log.Println("[Error] failed to get logs for container", containerID, "with error", err.Error())
+		return err
+	}
+	if _, err := io.Copy(os.Stdout, output); err != nil {
+		log.Println("[Error] failed to copy container output to stdout with error", err.Error())
 		return err
 	}
 
